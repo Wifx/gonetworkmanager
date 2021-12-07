@@ -57,6 +57,11 @@ type AccessPoint interface {
 	// percent.
 	GetPropertyStrength() (uint8, error)
 
+	// GetPropertyLastSeen
+	// The timestamp (in CLOCK_BOOTTIME seconds) for the last  time the access point was found in scan results.
+	// A value of -1 means the access point has never been found in scan results.
+	GetPropertyLastSeen() (int32, error)
+
 	MarshalJSON() ([]byte, error)
 }
 
@@ -117,6 +122,10 @@ func (a *accessPoint) GetPropertyStrength() (uint8, error) {
 	return a.getUint8Property(AccessPointPropertyStrength)
 }
 
+func (a *accessPoint) GetPropertyLastSeen() (int32, error) {
+	return a.getInt32Property(AccessPointPropertyLastSeen)
+}
+
 func (a *accessPoint) MarshalJSON() ([]byte, error) {
 	Flags, err := a.GetPropertyFlags()
 	if err != nil {
@@ -154,6 +163,10 @@ func (a *accessPoint) MarshalJSON() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	LastSeen, err := a.GetPropertyLastSeen()
+	if err != nil {
+		return nil, err
+	}
 
 	return json.Marshal(map[string]interface{}{
 		"Flags":      Flags,
@@ -165,5 +178,6 @@ func (a *accessPoint) MarshalJSON() ([]byte, error) {
 		"Mode":       Mode.String(),
 		"MaxBitrate": MaxBitrate,
 		"Strength":   Strength,
+		"LastSeen":   LastSeen,
 	})
 }

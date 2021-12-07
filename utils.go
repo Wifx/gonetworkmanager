@@ -58,7 +58,7 @@ func (d *dbusBase) getProperty(iface string) (interface{}, error) {
 	return variant.Value(), err
 }
 
-func (d *dbusBase) setProperty(iface string, value interface{}) (error) {
+func (d *dbusBase) setProperty(iface string, value interface{}) error {
 	err := d.obj.SetProperty(iface, dbus.MakeVariant(value))
 	return err
 }
@@ -173,6 +173,19 @@ func (d *dbusBase) getUint32Property(iface string) (value uint32, err error) {
 		return
 	}
 	value, ok := prop.(uint32)
+	if !ok {
+		err = makeErrVariantType(iface)
+		return
+	}
+	return
+}
+
+func (d *dbusBase) getInt32Property(iface string) (value int32, err error) {
+	prop, err := d.getProperty(iface)
+	if err != nil {
+		return
+	}
+	value, ok := prop.(int32)
 	if !ok {
 		err = makeErrVariantType(iface)
 		return
