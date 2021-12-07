@@ -172,7 +172,7 @@ type NetworkManager interface {
 	GetPropertyActiveConnections() ([]ActiveConnection, error)
 
 	// The object path of the "primary" active connection being used to access the network. In particular, if there is no VPN active, or the VPN does not have the default route, then this indicates the connection that has the default route. If there is a VPN active with the default route, then this indicates the connection that contains the route to the VPN endpoint.
-	GetPropertyPrimaryConnection() (Connection, error)
+	GetPropertyPrimaryConnection() (ActiveConnection, error)
 
 	// The connection type of the "primary" active connection being used to access the network. This is the same as the Type property on the object indicated by PrimaryConnection.
 	GetPropertyPrimaryConnectionType() (string, error)
@@ -543,14 +543,14 @@ func (nm *networkManager) GetPropertyActiveConnections() ([]ActiveConnection, er
 	return ac, nil
 }
 
-func (nm *networkManager) GetPropertyPrimaryConnection() (Connection, error) {
-	connectionPath, err := nm.getObjectProperty(NetworkManagerPropertyPrimaryConnection)
+func (nm *networkManager) GetPropertyPrimaryConnection() (ActiveConnection, error) {
+	activeConnectionPath, err := nm.getObjectProperty(NetworkManagerPropertyPrimaryConnection)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return NewConnection(connectionPath)
+	return NewActiveConnection(activeConnectionPath)
 }
 
 func (nm *networkManager) GetPropertyPrimaryConnectionType() (string, error) {
