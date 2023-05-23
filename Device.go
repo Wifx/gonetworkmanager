@@ -2,6 +2,7 @@ package gonetworkmanager
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/godbus/dbus/v5"
 )
@@ -42,6 +43,10 @@ const (
 	DevicePropertyLldpNeighbors        = DeviceInterface + ".LldpNeighbors"        // readable   aa{sv}
 	DevicePropertyReal                 = DeviceInterface + ".Real"                 // readable   b
 	DevicePropertyIp4Connectivity      = DeviceInterface + ".Ip4Connectivity"      // readable   u
+
+	/* Signals */
+	DeviceSignalStateChanged = "StateChanged" // u state, u reason
+
 )
 
 func DeviceFactory(objectPath dbus.ObjectPath) (Device, error) {
@@ -153,6 +158,8 @@ type Device interface {
 
 	// The result of the last IPv4 connectivity check.
 	GetPropertyIp4Connectivity() (NmConnectivity, error)
+
+	SubscribeState(receiver chan DeviceStateChange, exit chan struct{}) (err error)
 
 	MarshalJSON() ([]byte, error)
 }
@@ -361,6 +368,59 @@ func (d *device) marshalMap() (map[string]interface{}, error) {
 		"DeviceType":           DeviceType.String(),
 		"AvailableConnections": AvailableConnections,
 	}, nil
+}
+
+type DeviceStateChange struct {
+	Path   dbus.ObjectPath
+	State  NmDeviceState
+	Reason NmDeviceStateReason
+}
+
+func (d *device) SubscribeState(receiver chan DeviceStateChange, exit chan struct{}) (err error) {
+
+	channel := make(chan *dbus.Signal, 1)
+
+	d.conn.Signal(channel)
+
+	err = d.conn.AddMatchSignal(
+		dbus.WithMatchInterface(DeviceInterface),
+		dbus.WithMatchMember(DeviceSignalStateChanged),
+		dbus.WithMatchObjectPath(d.GetPath()),
+	)
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		for {
+			select {
+			case signal, ok := <-channel:
+				if !ok {
+					err = fmt.Errorf("connection closed for %s", DeviceSignalStateChanged)
+					return
+				}
+
+				if signal.Name != DeviceInterface+"."+DeviceSignalStateChanged {
+					continue
+				}
+
+				stateChange := DeviceStateChange{
+					Path:   signal.Path,
+					State:  NmDeviceState(signal.Body[0].(uint32)),
+					Reason: NmDeviceStateReason(signal.Body[1].(uint32)),
+				}
+
+				receiver <- stateChange
+
+			case <-exit:
+				d.conn.RemoveSignal(channel)
+				close(channel)
+				return
+			}
+		}
+	}()
+
+	return
 }
 
 func (d *device) MarshalJSON() ([]byte, error) {
