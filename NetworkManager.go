@@ -158,6 +158,7 @@ type NetworkManager interface {
 
 	// GetPropertyWwanEnabled Indicates if mobile broadband devices are currently enabled or not.
 	GetPropertyWwanEnabled() (bool, error)
+	SetPropertyWwanEnabled(bool) error
 
 	// GetPropertyWwanHardwareEnabled Indicates if the mobile broadband hardware is currently enabled, i.e. the state of the RF kill switch.
 	GetPropertyWwanHardwareEnabled() (bool, error)
@@ -511,6 +512,10 @@ func (nm *networkManager) GetPropertyWirelessHardwareEnabled() (bool, error) {
 
 func (nm *networkManager) GetPropertyWwanEnabled() (bool, error) {
 	return nm.getBoolProperty(NetworkManagerPropertyWwanEnabled)
+}
+
+func (nm *networkManager) SetPropertyWwanEnabled(enabled bool) error {
+	return nm.setProperty(NetworkManagerPropertyWwanEnabled, enabled)
 }
 
 func (nm *networkManager) GetPropertyWwanHardwareEnabled() (bool, error) {
