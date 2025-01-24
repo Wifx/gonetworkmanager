@@ -22,9 +22,11 @@ type DeviceBridge interface {
 	GetPropertyHwAddress() (string, error)
 
 	// GetPropertySlaves Array of paths of enslaved and active devices.
+	// DEPRECATED. Use the "Ports" property in "org.freedesktop.NetworkManager.Device" instead which exists since version NetworkManager 1.34.0.
 	GetPropertySlaves() ([]Device, error)
 
 	// GetPropertyCarrier Indicates whether the physical carrier is found (e.g. whether a cable is plugged in or not).
+	// DEPRECATED: check for the "carrier" flag in the "InterfaceFlags" property on the "org.freedesktop.NetworkManager.Device" interface.
 	GetPropertyCarrier() (bool, error)
 }
 
