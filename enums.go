@@ -73,6 +73,18 @@ const (
 	NmDeviceStateFailed       NmDeviceState = 120 // the device failed to connect to the requested network and is cleaning up the connection request
 )
 
+//go:generate stringer -type=NmDeviceInterfaceFlags
+type NmDeviceInterfaceFlags uint32
+
+const (
+	NmDeviceInterfaceFlagsNone              NmDeviceInterfaceFlags = 0       // an alias for numeric zero, no flags set.
+	NmDeviceInterfaceFlagsUp                NmDeviceInterfaceFlags = 0x1     // the interface is enabled from the administrative point of view. Corresponds to kernel IFF_UP.
+	NmDeviceInterfaceFlagsLowerUp           NmDeviceInterfaceFlags = 0x2     // the physical link is up. Corresponds to kernel IFF_LOWER_UP.
+	NmDeviceInterfaceFlagsPromisc           NmDeviceInterfaceFlags = 0x4     // receive all packets. Corresponds to kernel IFF_PROMISC. Since: 1.32.
+	NmDeviceInterfaceFlagsCarrier           NmDeviceInterfaceFlags = 0x10000 // the interface has carrier. In most cases this is equal to the value of @NM_DEVICE_INTERFACE_FLAG_LOWER_UP. However some devices have a non-standard carrier detection mechanism.
+	NmDeviceInterfaceFlagsLldpClientEnabled NmDeviceInterfaceFlags = 0x20000 // the flag to indicate device LLDP status. Since: 1.32.
+)
+
 //go:generate stringer -type=NmActiveConnectionState
 type NmActiveConnectionState uint32
 

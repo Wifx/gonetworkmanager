@@ -15,7 +15,6 @@ const (
 	DeviceWirelessRequestScan        = DeviceWirelessInterface + ".RequestScan"
 
 	// Properties
-	DeviceWirelessPropertyHwAddress            = DeviceWirelessInterface + ".HwAddress"            // readable   s
 	DeviceWirelessPropertyPermHwAddress        = DeviceWirelessInterface + ".PermHwAddress"        // readable   s
 	DeviceWirelessPropertyMode                 = DeviceWirelessInterface + ".Mode"                 // readable   u
 	DeviceWirelessPropertyBitrate              = DeviceWirelessInterface + ".Bitrate"              // readable   u
@@ -42,9 +41,6 @@ type DeviceWireless interface {
 	// "PropertiesChanged" signal from "org.freedesktop.DBus.Properties" to listen
 	// to changes to the "LastScan" property.
 	RequestScan() error
-
-	// GetPropertyHwAddress The active hardware address of the device.
-	GetPropertyHwAddress() (string, error)
 
 	// GetPropertyPermHwAddress The permanent hardware address of the device.
 	GetPropertyPermHwAddress() (string, error)
@@ -122,10 +118,6 @@ func (d *deviceWireless) GetAllAccessPoints() ([]AccessPoint, error) {
 func (d *deviceWireless) RequestScan() error {
 	var options map[string]interface{}
 	return d.obj.Call(DeviceWirelessRequestScan, 0, options).Store()
-}
-
-func (d *deviceWireless) GetPropertyHwAddress() (string, error) {
-	return d.getStringProperty(DeviceWirelessPropertyHwAddress)
 }
 
 func (d *deviceWireless) GetPropertyPermHwAddress() (string, error) {

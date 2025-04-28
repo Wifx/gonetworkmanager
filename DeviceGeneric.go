@@ -10,15 +10,11 @@ const (
 	DeviceGenericInterface = DeviceInterface + ".Generic"
 
 	// Properties
-	DeviceGenericPropertyHwAddress       = DeviceGenericInterface + ".HwAddress"       // readable   s
 	DeviceGenericPropertyTypeDescription = DeviceGenericInterface + ".TypeDescription" // readable   s
 )
 
 type DeviceGeneric interface {
 	Device
-
-	// GetPropertyHwAddress Active hardware address of the device.
-	GetPropertyHwAddress() (string, error)
 
 	// GetPropertyTypeDescription A (non-localized) description of the interface type, if known.
 	GetPropertyTypeDescription() (string, error)
@@ -31,10 +27,6 @@ func NewDeviceGeneric(objectPath dbus.ObjectPath) (DeviceGeneric, error) {
 
 type deviceGeneric struct {
 	device
-}
-
-func (d *deviceGeneric) GetPropertyHwAddress() (string, error) {
-	return d.getStringProperty(DeviceGenericPropertyHwAddress)
 }
 
 func (d *deviceGeneric) GetPropertyTypeDescription() (string, error) {

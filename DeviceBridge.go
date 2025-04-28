@@ -10,16 +10,12 @@ const (
 	DeviceBridgeInterface = DeviceInterface + ".Bridge"
 
 	// Properties
-	DeviceBridgePropertyHwAddress = DeviceBridgeInterface + ".HwAddress" // readable   s
-	DeviceBridgePropertySlaves    = DeviceBridgeInterface + ".Slaves"    // readable   as
-	DeviceBridgePropertyCarrier   = DeviceBridgeInterface + ".Carrier"   // readable   b
+	DeviceBridgePropertySlaves  = DeviceBridgeInterface + ".Slaves"  // readable   as
+	DeviceBridgePropertyCarrier = DeviceBridgeInterface + ".Carrier" // readable   b
 )
 
 type DeviceBridge interface {
 	Device
-
-	// GetPropertyHwAddress Active hardware address of the device.
-	GetPropertyHwAddress() (string, error)
 
 	// GetPropertySlaves Array of paths of enslaved and active devices.
 	// DEPRECATED. Use the "Ports" property in "org.freedesktop.NetworkManager.Device" instead which exists since version NetworkManager 1.34.0.
@@ -37,10 +33,6 @@ func NewDeviceBridge(objectPath dbus.ObjectPath) (DeviceBridge, error) {
 
 type deviceBridge struct {
 	device
-}
-
-func (d *deviceBridge) GetPropertyHwAddress() (string, error) {
-	return d.getStringProperty(DeviceBridgePropertyHwAddress)
 }
 
 func (d *deviceBridge) GetPropertySlaves() ([]Device, error) {

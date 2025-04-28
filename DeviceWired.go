@@ -20,9 +20,6 @@ const (
 type DeviceWired interface {
 	Device
 
-	// GetPropertyHwAddress Active hardware address of the device.
-	GetPropertyHwAddress() (string, error)
-
 	// GetPropertyPermHwAddress Permanent hardware address of the device.
 	GetPropertyPermHwAddress() (string, error)
 
@@ -33,6 +30,7 @@ type DeviceWired interface {
 	GetPropertyS390Subchannels() ([]string, error)
 
 	// GetPropertyCarrier Indicates whether the physical carrier is found (e.g. whether a cable is plugged in or not).
+	// DEPRECATED: check for the "carrier" flag in the "InterfaceFlags" property on the "org.freedesktop.NetworkManager.Device" interface.
 	GetPropertyCarrier() (bool, error)
 }
 

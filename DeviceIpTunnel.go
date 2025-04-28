@@ -10,7 +10,6 @@ const (
 	DeviceIpTunnelInterface = DeviceInterface + ".IPTunnel"
 
 	// Properties
-	DeviceIpTunnelPropertyHwAddress          = DeviceIpTunnelInterface + "HwAddress"           // readable   s
 	DeviceIpTunnelPropertyMode               = DeviceIpTunnelInterface + ".Mode"               // readable   u
 	DeviceIpTunnelPropertyParent             = DeviceIpTunnelInterface + ".Parent"             // readable   o
 	DeviceIpTunnelPropertyLocal              = DeviceIpTunnelInterface + ".Local"              // readable   s

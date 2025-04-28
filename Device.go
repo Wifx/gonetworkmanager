@@ -43,6 +43,10 @@ const (
 	DevicePropertyLldpNeighbors        = DeviceInterface + ".LldpNeighbors"        // readable   aa{sv}
 	DevicePropertyReal                 = DeviceInterface + ".Real"                 // readable   b
 	DevicePropertyIp4Connectivity      = DeviceInterface + ".Ip4Connectivity"      // readable   u
+	DevicePropertyIp6Connectivity      = DeviceInterface + ".Ip6Connectivity"      // readable   u
+	DevicePropertyInterfaceFlags       = DeviceInterface + ".InterfaceFlags"       // readable   u
+	DevicePropertyHwAddress            = DeviceInterface + ".HwAddress"            // readable   s
+	DevicePropertyPorts                = DeviceInterface + ".Ports"                // readable   ao
 
 	/* Signals */
 	DeviceSignalStateChanged = "StateChanged" // u state, u reason
@@ -160,6 +164,21 @@ type Device interface {
 
 	// The result of the last IPv4 connectivity check.
 	GetPropertyIp4Connectivity() (NmConnectivity, error)
+
+	// The result of the last IPv6 connectivity check.
+	GetPropertyIp6Connectivity() (NmConnectivity, error)
+
+	// GetPropertyInterfaceFlags The flags of the network interface.
+	// See NMDeviceInterfaceFlags for the currently defined flags.
+	GetPropertyInterfaceFlags() (uint32, error)
+
+	// GetPropertyHwAddress The hardware address of the device.
+	// This replaces the other 'HwAddress' properties on the device-specific D-Bus interfaces.
+	GetPropertyHwAddress() (string, error)
+
+	// GetPropertyPorts The port devices of the controller device.
+	// Array of object paths representing devices which are currently set as port of this device. This replaces the 'Slaves' properties on the device-specific D-Bus interfaces.
+	GetPropertyPorts() ([]Device, error)
 
 	SubscribeState(receiver chan DeviceStateChange, exit chan struct{}) (err error)
 
@@ -329,6 +348,36 @@ func (d *device) GetPropertyReal() (bool, error) {
 func (d *device) GetPropertyIp4Connectivity() (NmConnectivity, error) {
 	u, err := d.getUint32Property(DevicePropertyIp4Connectivity)
 	return NmConnectivity(u), err
+}
+
+func (d *device) GetPropertyIp6Connectivity() (NmConnectivity, error) {
+	u, err := d.getUint32Property(DevicePropertyIp6Connectivity)
+	return NmConnectivity(u), err
+}
+
+func (d *device) GetPropertyInterfaceFlags() (uint32, error) {
+	return d.getUint32Property(DevicePropertyInterfaceFlags)
+}
+
+func (d *device) GetPropertyHwAddress() (string, error) {
+	return d.getStringProperty(DevicePropertyHwAddress)
+}
+
+func (d *device) GetPropertyPorts() ([]Device, error) {
+	ports, err := d.getSliceObjectProperty(DevicePropertyPorts)
+	if err != nil {
+		return nil, err
+	}
+
+	devices := make([]Device, len(ports))
+	for i, path := range ports {
+		devices[i], err = DeviceFactory(path)
+		if err != nil {
+			return devices, err
+		}
+	}
+
+	return devices, nil
 }
 
 func (d *device) marshalMap() (map[string]interface{}, error) {
