@@ -5,6 +5,14 @@ All notable changes to this project since will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2025-01-24
+
+### Fixed
+
+- BREAKING CHANGE: fix prefixes and metrics as uint8 to uint32 by @tom-wegener in #46
+- BREAKING CHANGE: Fix #39 : Device.Reapply using wrong settings argument
+- Fix #45: Improve Device types consistency by using DeviceFactory instead of NewDevice
+
 ## [2.1.0] - 2023-01-19
 
 ### Added
