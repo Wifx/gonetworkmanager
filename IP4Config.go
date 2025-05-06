@@ -59,6 +59,8 @@ type IP4NameserverData struct {
 }
 
 type IP4Config interface {
+	GetPath() dbus.ObjectPath
+
 	// GetPropertyAddresses Array of arrays of IPv4 address/prefix/gateway. All 3 elements of each array are in network byte order. Essentially: [(addr, prefix, gateway), (addr, prefix, gateway), ...]
 	// Deprecated: use AddressData and Gateway
 	GetPropertyAddresses() ([]IP4Address, error)
@@ -108,6 +110,10 @@ func NewIP4Config(objectPath dbus.ObjectPath) (IP4Config, error) {
 
 type ip4Config struct {
 	dbusBase
+}
+
+func (c *ip4Config) GetPath() dbus.ObjectPath {
+	return c.obj.Path()
 }
 
 // Deprecated: use GetPropertyAddressData

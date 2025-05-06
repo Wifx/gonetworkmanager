@@ -52,6 +52,7 @@ type IP6RouteData struct {
 }
 
 type IP6Config interface {
+	GetPath() dbus.ObjectPath
 
 	// GetPropertyAddressData Array of IP address data objects. All addresses will include "address" (an IP address string), and "prefix" (a uint). Some addresses may include additional attributes.
 	GetPropertyAddressData() ([]IP6AddressData, error)
@@ -87,6 +88,10 @@ func NewIP6Config(objectPath dbus.ObjectPath) (IP6Config, error) {
 
 type ip6Config struct {
 	dbusBase
+}
+
+func (c *ip6Config) GetPath() dbus.ObjectPath {
+	return c.obj.Path()
 }
 
 func (c *ip6Config) GetPropertyAddressData() ([]IP6AddressData, error) {
