@@ -132,30 +132,38 @@ func (c *ip4Config) GetPropertyAddresses() ([]IP4Address, error) {
 
 func (c *ip4Config) GetPropertyAddressData() ([]IP4AddressData, error) {
 	addresses, err := c.getSliceMapStringVariantProperty(IP4ConfigPropertyAddressData)
-	ret := make([]IP4AddressData, len(addresses))
-
 	if err != nil {
-		return ret, err
+		return []IP4AddressData{}, err
 	}
+	return DecodeIP4AddressData(addresses)
+}
 
-	for i, address := range addresses {
-		prefix, ok := address["prefix"].Value().(uint32)
-		if !ok {
-			return ret, errors.New("unexpected variant type for address prefix")
+func DecodeIP4AddressData(addresses []map[string]dbus.Variant) ([]IP4AddressData, error) {
+	addressesData := make([]IP4AddressData, 0, len(addresses))
+
+	for _, address := range addresses {
+		addressDataObj := IP4AddressData{}
+
+		for addressDataAttributeName, addressDataAttribute := range address {
+			switch addressDataAttributeName {
+			case "address":
+				address, ok := addressDataAttribute.Value().(string)
+				if !ok {
+					return addressesData, errors.New("unexpected variant type for address")
+				}
+				addressDataObj.Address = address
+			case "prefix":
+				prefix, ok := addressDataAttribute.Value().(uint32)
+				if !ok {
+					return addressesData, errors.New("unexpected variant type for prefix")
+				}
+				addressDataObj.Prefix = prefix
+			}
 		}
 
-		address, ok := address["address"].Value().(string)
-		if !ok {
-			return ret, errors.New("unexpected variant type for address")
-		}
-
-		ret[i] = IP4AddressData{
-			Address: address,
-			Prefix:  prefix,
-		}
+		addressesData = append(addressesData, addressDataObj)
 	}
-
-	return ret, nil
+	return addressesData, nil
 }
 
 func (c *ip4Config) GetPropertyGateway() (string, error) {
@@ -184,54 +192,56 @@ func (c *ip4Config) GetPropertyRoutes() ([]IP4Route, error) {
 }
 
 func (c *ip4Config) GetPropertyRouteData() ([]IP4RouteData, error) {
-	routesData, err := c.getSliceMapStringVariantProperty(IP4ConfigPropertyRouteData)
-	routes := make([]IP4RouteData, len(routesData))
-
+	routes, err := c.getSliceMapStringVariantProperty(IP4ConfigPropertyRouteData)
 	if err != nil {
-		return routes, err
+		return []IP4RouteData{}, err
 	}
+	return DecodeIP4RouteData(routes)
+}
 
-	for index, routeData := range routesData {
+func DecodeIP4RouteData(routes []map[string]dbus.Variant) ([]IP4RouteData, error) {
+	routesData := make([]IP4RouteData, 0, len(routes))
 
-		route := IP4RouteData{}
+	for _, route := range routes {
+		routeDataObj := IP4RouteData{}
 
-		for routeDataAttributeName, routeDataAttribute := range routeData {
+		for routeDataAttributeName, routeDataAttribute := range route {
 			switch routeDataAttributeName {
 			case "dest":
 				destination, ok := routeDataAttribute.Value().(string)
 				if !ok {
-					return routes, errors.New("unexpected variant type for dest")
+					return routesData, errors.New("unexpected variant type for dest")
 				}
-				route.Destination = destination
+				routeDataObj.Destination = destination
 			case "prefix":
 				prefix, ok := routeDataAttribute.Value().(uint32)
 				if !ok {
-					return routes, errors.New("unexpected variant type for prefix")
+					return routesData, errors.New("unexpected variant type for prefix")
 				}
-				route.Prefix = prefix
+				routeDataObj.Prefix = prefix
 			case "next-hop":
 				nextHop, ok := routeDataAttribute.Value().(string)
 				if !ok {
-					return routes, errors.New("unexpected variant type for next-hop")
+					return routesData, errors.New("unexpected variant type for next-hop")
 				}
-				route.NextHop = nextHop
+				routeDataObj.NextHop = nextHop
 			case "metric":
 				metric, ok := routeDataAttribute.Value().(uint32)
 				if !ok {
-					return routes, errors.New("unexpected variant type for metric")
+					return routesData, errors.New("unexpected variant type for metric")
 				}
-				route.Metric = metric
+				routeDataObj.Metric = metric
 			default:
-				if route.AdditionalAttributes == nil {
-					route.AdditionalAttributes = make(map[string]string)
+				if routeDataObj.AdditionalAttributes == nil {
+					routeDataObj.AdditionalAttributes = make(map[string]string)
 				}
-				route.AdditionalAttributes[routeDataAttributeName] = routeDataAttribute.String()
+				routeDataObj.AdditionalAttributes[routeDataAttributeName] = routeDataAttribute.String()
 			}
 		}
 
-		routes[index] = route
+		routesData = append(routesData, routeDataObj)
 	}
-	return routes, nil
+	return routesData, nil
 }
 
 // Deprecated: use GetPropertyNameserverData
@@ -252,15 +262,17 @@ func (c *ip4Config) GetPropertyNameservers() ([]string, error) {
 
 func (c *ip4Config) GetPropertyNameserverData() ([]IP4NameserverData, error) {
 	nameserversData, err := c.getSliceMapStringVariantProperty(IP4ConfigPropertyNameserverData)
-	nameservers := make([]IP4NameserverData, 0, len(nameserversData))
-
 	if err != nil {
-		return nameservers, err
+		return nil, err
 	}
+	return DecodeIP4NameserverData(nameserversData)
+}
 
-	for _, nameserverData := range nameserversData {
-		address, ok := nameserverData["address"].Value().(string)
+func DecodeIP4NameserverData(nameserverData []map[string]dbus.Variant) ([]IP4NameserverData, error) {
+	nameservers := make([]IP4NameserverData, 0, len(nameserverData))
 
+	for _, nsData := range nameserverData {
+		address, ok := nsData["address"].Value().(string)
 		if !ok {
 			return nameservers, errors.New("unexpected variant type for address")
 		}

@@ -91,30 +91,34 @@ type ip6Config struct {
 
 func (c *ip6Config) GetPropertyAddressData() ([]IP6AddressData, error) {
 	addresses, err := c.getSliceMapStringVariantProperty(IP6ConfigPropertyAddressData)
-	ret := make([]IP6AddressData, len(addresses))
-
 	if err != nil {
-		return ret, err
+		return []IP6AddressData{}, err
+	}
+	return DecodeIP6AddressData(addresses)
+}
+
+func DecodeIP6AddressData(addresses []map[string]dbus.Variant) ([]IP6AddressData, error) {
+	addressesData := make([]IP6AddressData, 0, len(addresses))
+
+	for _, address := range addresses {
+
+		addressData := IP6AddressData{}
+		var ok bool
+
+		addressData.Prefix, ok = address["prefix"].Value().(uint32)
+		if !ok {
+			return addressesData, errors.New("unexpected variant type for prefix")
+		}
+
+		addressData.Address, ok = address["address"].Value().(string)
+		if !ok {
+			return addressesData, errors.New("unexpected variant type for address")
+		}
+
+		addressesData = append(addressesData, addressData)
 	}
 
-	for i, address := range addresses {
-		prefix, ok := address["prefix"].Value().(uint32)
-		if !ok {
-			return ret, errors.New("unexpected variant type for prefix")
-		}
-
-		address, ok := address["address"].Value().(string)
-		if !ok {
-			return ret, errors.New("unexpected variant type for address")
-		}
-
-		ret[i] = IP6AddressData{
-			Address: address,
-			Prefix:  prefix,
-		}
-	}
-
-	return ret, nil
+	return addressesData, nil
 }
 
 func (c *ip6Config) GetPropertyGateway() (string, error) {
@@ -122,54 +126,56 @@ func (c *ip6Config) GetPropertyGateway() (string, error) {
 }
 
 func (c *ip6Config) GetPropertyRouteData() ([]IP6RouteData, error) {
-	routesData, err := c.getSliceMapStringVariantProperty(IP6ConfigPropertyRouteData)
-	routes := make([]IP6RouteData, len(routesData))
-
+	routes, err := c.getSliceMapStringVariantProperty(IP6ConfigPropertyRouteData)
 	if err != nil {
-		return routes, err
+		return []IP6RouteData{}, err
 	}
+	return DecodeIP6RouteData(routes)
+}
 
-	for index, routeData := range routesData {
+func DecodeIP6RouteData(routes []map[string]dbus.Variant) ([]IP6RouteData, error) {
+	routesData := make([]IP6RouteData, 0, len(routes))
 
-		route := IP6RouteData{}
+	for _, route := range routes {
+		routeDataObj := IP6RouteData{}
 
-		for routeDataAttributeName, routeDataAttribute := range routeData {
+		for routeDataAttributeName, routeDataAttribute := range route {
 			switch routeDataAttributeName {
 			case "dest":
 				destination, ok := routeDataAttribute.Value().(string)
 				if !ok {
-					return routes, errors.New("unexpected variant type for dest")
+					return routesData, errors.New("unexpected variant type for dest")
 				}
-				route.Destination = destination
+				routeDataObj.Destination = destination
 			case "prefix":
 				prefix, ok := routeDataAttribute.Value().(uint32)
 				if !ok {
-					return routes, errors.New("unexpected variant type for prefix")
+					return routesData, errors.New("unexpected variant type for prefix")
 				}
-				route.Prefix = prefix
+				routeDataObj.Prefix = prefix
 			case "next-hop":
 				nextHop, ok := routeDataAttribute.Value().(string)
 				if !ok {
-					return routes, errors.New("unexpected variant type for next-hop")
+					return routesData, errors.New("unexpected variant type for next-hop")
 				}
-				route.NextHop = nextHop
+				routeDataObj.NextHop = nextHop
 			case "metric":
 				metric, ok := routeDataAttribute.Value().(uint32)
 				if !ok {
-					return routes, errors.New("unexpected variant type for metric")
+					return routesData, errors.New("unexpected variant type for metric")
 				}
-				route.Metric = metric
+				routeDataObj.Metric = metric
 			default:
-				if route.AdditionalAttributes == nil {
-					route.AdditionalAttributes = make(map[string]string)
+				if routeDataObj.AdditionalAttributes == nil {
+					routeDataObj.AdditionalAttributes = make(map[string]string)
 				}
-				route.AdditionalAttributes[routeDataAttributeName] = routeDataAttribute.String()
+				routeDataObj.AdditionalAttributes[routeDataAttributeName] = routeDataAttribute.String()
 			}
 		}
 
-		routes[index] = route
+		routesData = append(routesData, routeDataObj)
 	}
-	return routes, nil
+	return routesData, nil
 }
 
 func (c *ip6Config) GetPropertyNameservers() ([][]byte, error) {
