@@ -5,6 +5,13 @@ All notable changes to this project since will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2025-05-06
+
+### Added
+
+- Add GetPath() method to IP4Config and IP6Config interfaces
+- Add public decoding functions for IP4 and IP6 data structs
+
 ## [3.1.0] - 2025-04-28
 
 ### Added
