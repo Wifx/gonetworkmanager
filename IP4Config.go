@@ -95,7 +95,7 @@ type IP4Config interface {
 	GetPropertyDnsOptions() ([]string, error)
 
 	// GetPropertyDnsPriority The relative priority of DNS servers.
-	GetPropertyDnsPriority() (uint32, error)
+	GetPropertyDnsPriority() (int32, error)
 
 	// GetPropertyWinsServerData The Windows Internet Name Service servers associated with the connection.
 	GetPropertyWinsServerData() ([]string, error)
@@ -304,8 +304,8 @@ func (c *ip4Config) GetPropertyDnsOptions() ([]string, error) {
 	return c.getSliceStringProperty(IP4ConfigPropertyDnsOptions)
 }
 
-func (c *ip4Config) GetPropertyDnsPriority() (uint32, error) {
-	return c.getUint32Property(IP4ConfigPropertyDnsPriority)
+func (c *ip4Config) GetPropertyDnsPriority() (int32, error) {
+	return c.getInt32Property(IP4ConfigPropertyDnsPriority)
 }
 
 func (c *ip4Config) GetPropertyWinsServerData() ([]string, error) {

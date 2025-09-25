@@ -76,7 +76,7 @@ type IP6Config interface {
 	GetPropertyDnsOptions() ([]string, error)
 
 	// GetPropertyDnsPriority The relative priority of DNS servers.
-	GetPropertyDnsPriority() (uint32, error)
+	GetPropertyDnsPriority() (int32, error)
 
 	MarshalJSON() ([]byte, error)
 }
@@ -210,8 +210,8 @@ func (c *ip6Config) GetPropertyDnsOptions() ([]string, error) {
 	return c.getSliceStringProperty(IP6ConfigPropertyDnsOptions)
 }
 
-func (c *ip6Config) GetPropertyDnsPriority() (uint32, error) {
-	return c.getUint32Property(IP6ConfigPropertyDnsPriority)
+func (c *ip6Config) GetPropertyDnsPriority() (int32, error) {
+	return c.getInt32Property(IP6ConfigPropertyDnsPriority)
 }
 
 func (c *ip6Config) MarshalJSON() ([]byte, error) {
